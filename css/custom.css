@@ -1,0 +1,22 @@
+.commonText{
+    font-family: 微软雅黑,sans-serif;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+}
+tr{
+    font-family: 微软雅黑,sans-serif;
+    letter-spacing: 0.05em;
+    font-weight: 400;
+}
+body{
+    background-color: #ffffef;
+}
+#reminderInfo{
+    display: inline-block;
+    color: #e43725;
+    letter-spacing: 0.1em;
+    font-family: 微软雅黑,sans-serif;
+    text-align: right;
+    margin-top: 10px;
+    margin-left: 20px;
+}

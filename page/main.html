@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+* Author : Ech0
+* Email  : ech0.extreme@foxmail.com
+* Time   : 07/26/2017 06:20 PM
+*-->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>main</title>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/custom.css">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <script src="../js/user.js"></script>
+    <script src="../js/obtainData.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-2">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#" id="userName" class="commonText">Echo0</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#" class="commonText">成绩列表<span class="sr-only"></span></a></li>
+
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <button type="button" class="commonText btn btn-info" onclick="tryToLogout()"
+                            style="margin-top: 7%"/>
+                    切换用户
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover table-condensed">
+        <thead>
+        <tr>
+            <th>学期</th>
+            <th>课程名称</th>
+            <th>分数</th>
+            <th>课程性质</th>
+            <th>课程类别</th>
+            <th>学分</th>
+        </tr>
+        </thead>
+        <tbody id="grade-list">
+            <!--insert content -->
+        </tbody>
+    </table>
+</div>
+
+</body>
+<script>
+    var responseText;
+    var user={//用户信息
+        name:"",
+        stuId:""
+    };
+    var gradeList;//分数列表
+    $(function () {
+        responseText = JSON.parse(getAllGrades());
+        //validate
+        if (responseText.status != 0) {
+            self.location = "./login.html";
+        }
+        else {
+            var responseData = responseText.data;
+            user.name=responseData.stuName;
+            user.stuId=responseData.studentId;
+            gradeList=responseData.gradeList;
+            console.log(user);
+            console.log(gradeList);
+            // set username
+            $("#userName").html(user.name);
+            //show grades
+            showGrades(gradeList);
+        }
+    });
+    function tryToLogout() {
+        doLogout();
+        self.location = "./login.html";
+    }
+    function showGrades(gradeList) {
+        var length = gradeList.length;
+        var $gradeList = $("#grade-list");
+        for(var i=0;i<length;i++){//concat
+            var row;
+            if(gradeList[i].grade<60||gradeList[i].grade=="不及格"){
+                row="<tr class=\"danger \">";
+            }else if(gradeList[i].grade<70||gradeList[i].grade=="及格"){
+                row="<tr class=\"warning \">";
+            }else if(gradeList[i].grade<80||gradeList[i].grade=="中"){
+                row="<tr class=''>";
+            }else if(gradeList[i].grade<85||gradeList[i].grade=="良"){
+                row="<tr class=\"info \">";
+            }else {
+                row="<tr class=\"success \">";
+            }
+            row+="<td>"+gradeList[i].semester+"</td>"
+            +"<td>"+gradeList[i].courseName+"</td>"
+            +"<td>"+gradeList[i].grade+"</td>"
+            +"<td>"+gradeList[i].courseNature+"</td>"
+            +"<td>"+gradeList[i].courseCategory+"</td>"
+            +"<td>"+gradeList[i].credit+"</td>"
+            $gradeList.append(row);
+        }
+    }
+</script>
+</html>
