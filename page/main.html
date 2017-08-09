@@ -9,20 +9,55 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>main</title>
+    <link rel="icon" href="../img/icon/favoicon.png">
+    <title>Main Page</title>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/custom.css">
+    <link rel="stylesheet" href="../css/loader.css">
     <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
 
+    <script src="../js/functions.js"></script>
     <script src="../js/user.js"></script>
     <script src="../js/obtainData.js"></script>
+
+    <style>
+
+        #canvas-echo{
+            z-index: -1;
+            position: absolute;
+        }
+        #grade-list{
+            opacity: 0.9;
+
+        }
+        #semester-list{
+            opacity: 0.8;
+        }
+        .semester:hover{
+            background-color: #E2F1DA !important;
+        }
+        .semester:active{
+               background-color: #E2F1DA !important;
+        }
+
+
+    </style>
 </head>
 <body>
+<!--加载动画模块-->
+<div id="loader-wrapper">
+    <div id="loader"></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+    <div class="load_title">Loading . . .<br><span>Power by Echo0.cn</span></div>
+</div>
+</div>
+<canvas id="canvas-echo" ></canvas>
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -33,7 +68,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#" id="userName" class="commonText">Echo0</a>
+            <a class="navbar-brand" href="#" id="userName" class="commonText">Echo0.cn</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
@@ -51,32 +86,41 @@
         </div>
     </div>
 </nav>
-
+<div class="col-lg-2 col-md-2 col-sm-2">
+    <div id="semester-list" class="list-group table-of-contents">
+        <!--semester list-->
+    </div>
+</div>
 <div class="table-responsive">
-    <table class="table table-striped table-bordered table-hover table-condensed">
-        <thead>
-        <tr>
-            <th>学期</th>
-            <th>课程名称</th>
-            <th>分数</th>
-            <th>课程性质</th>
-            <th>课程类别</th>
-            <th>学分</th>
+
+    <table class="table table-striped table-bordered table-hover table-condensed text-center">
+        <thead >
+        <tr >
+            <th class="text-center">学期</th>
+            <th class="text-center">课程名称</th>
+            <th class="text-center">分数</th>
+            <th class="text-center">课程性质</th>
+            <th class="text-center">课程类别</th>
+            <th class="text-center">学分</th>
         </tr>
         </thead>
         <tbody id="grade-list">
-            <!--insert content -->
+        <!--// 成绩列表-->
+        <!--insert content -->
         </tbody>
     </table>
 </div>
-
 </body>
 <script>
     var responseText;
-    var user={//用户信息
-        name:"",
-        stuId:""
+    var $gradeList = $("#grade-list");  // 成绩列表
+    var $grades; // 所有成绩列表项
+    var semester=new Array();//学期列表
+    var user = {//用户信息
+        name: "",
+        stuId: ""
     };
+    var currentSemester; //当前展示的成绩的学期
     var gradeList;//分数列表
     $(function () {
         responseText = JSON.parse(getAllGrades());
@@ -86,45 +130,79 @@
         }
         else {
             var responseData = responseText.data;
-            user.name=responseData.stuName;
-            user.stuId=responseData.studentId;
-            gradeList=responseData.gradeList;
+            user.name = responseData.stuName;
+            user.stuId = responseData.studentId;
+            gradeList = responseData.gradeList;
             console.log(user);
-            console.log(gradeList);
+//            console.log(gradeList);
             // set username
             $("#userName").html(user.name);
             //show grades
             showGrades(gradeList);
         }
     });
+
     function tryToLogout() {
         doLogout();
         self.location = "./login.html";
     }
+//    只显示指定学期的成绩列表
+    function showGrade(semester) {
+        console.log(" show "+ semester);
+        if(semester==currentSemester){
+            // do nothing
+            console.log("current is "+ semester);
+            return;
+        }
+        console.log("hide "+currentSemester + " and show "+ semester);
+        $("."+currentSemester).hide();
+        currentSemester = semester;
+        semester="."+semester;
+        $(semester).fadeIn(800);
+    }
     function showGrades(gradeList) {
         var length = gradeList.length;
-        var $gradeList = $("#grade-list");
-        for(var i=0;i<length;i++){//concat
+        for (var i = 0; i < length; i++) {//concat
             var row;
-            if(gradeList[i].grade<60||gradeList[i].grade=="不及格"){
-                row="<tr class=\"danger \">";
-            }else if(gradeList[i].grade<70||gradeList[i].grade=="及格"){
-                row="<tr class=\"warning \">";
-            }else if(gradeList[i].grade<80||gradeList[i].grade=="中"){
-                row="<tr class=''>";
-            }else if(gradeList[i].grade<85||gradeList[i].grade=="良"){
-                row="<tr class=\"info \">";
-            }else {
-                row="<tr class=\"success \">";
+            if (gradeList[i].grade < 60 || gradeList[i].grade == "不及格") {
+                row = "<tr class='grade danger " + gradeList[i].semester +"'>";
+            } else if (gradeList[i].grade < 70 || gradeList[i].grade == "及格") {
+                row = "<tr class='grade warning " + gradeList[i].semester +"'>";
+            } else if (gradeList[i].grade < 80 || gradeList[i].grade == "中") {
+                row = "<tr class='grade default " + gradeList[i].semester +"'>";
+            } else if (gradeList[i].grade < 85 || gradeList[i].grade == "良") {
+                row = "<tr class='grade info " + gradeList[i].semester +"'>";
+            } else {
+                row = "<tr class='grade success " + gradeList[i].semester +"'>";
             }
-            row+="<td>"+gradeList[i].semester+"</td>"
-            +"<td>"+gradeList[i].courseName+"</td>"
-            +"<td>"+gradeList[i].grade+"</td>"
-            +"<td>"+gradeList[i].courseNature+"</td>"
-            +"<td>"+gradeList[i].courseCategory+"</td>"
-            +"<td>"+gradeList[i].credit+"</td>"
+            row += "<td>" + gradeList[i].semester + "</td>"
+                + "<td>" + gradeList[i].courseName + "</td>"
+                + "<td>" + gradeList[i].grade + "</td>"
+                + "<td>" + gradeList[i].courseNature + "</td>"
+                + "<td>" + gradeList[i].courseCategory + "</td>"
+                + "<td>" + gradeList[i].credit + "</td>"
+
+            semester.push(gradeList[i].semester);
             $gradeList.append(row);
         }
+        semester=semester.unique();//去重
+        $grades=$(".grade");
+        //hide grades
+        $grades.hide();
+        // init semester list
+        var $semesterList = $("#semester-list");
+        for(var i =0 ; i< semester.length;i++){
+            var row ="<a class=\"semester list-group-item text-center \" href=\"#navbar\" onclick=\"showGrade(this.innerHTML)\">";
+            row+=semester[i]+"</a>"
+            $semesterList.append(row);
+        }
+        //set current semester
+        currentSemester = $grades[0].classList[2];
+        //show current semester grade
+        $("."+currentSemester).show();
+        // remove load animation
+        $("#loader-wrapper").fadeOut(2000);
     }
 </script>
+<script src="../js/animations/circle.js"></script>
 </html>

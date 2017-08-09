@@ -25,4 +25,5 @@
 //{"status":1,"msg":"need to do login !"}
 function getAllGrades() {
     return $.post("http://echo0.cn:8080/HnustServices/services/getAllGrades").responseText;
+    // return $.post("http://localhost:8080/HnustServices/services/getAllGrades").responseText;
 }

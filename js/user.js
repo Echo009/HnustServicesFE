@@ -22,6 +22,7 @@ $.ajaxSetup({
 // {status: 3, msg: "incorrect stuId or password"}
 function doLogin(_stuId, _password) {
     return $.post("http://echo0.cn:8080/HnustServices/user/login.do",
+    // return $.post("http://localhost:8080/HnustServices/user/login.do",
         {
             stuId: _stuId,
             password: _password
@@ -35,4 +36,5 @@ function doLogin(_stuId, _password) {
 // {"status":1,"msg":"error"}
 function doLogout() {
     return $.get("http://echo0.cn:8080/HnustServices/user/logout.do").responseText;
+    // return $.get("http://localhost:8080/HnustServices/user/logout.do").responseText;
 }
